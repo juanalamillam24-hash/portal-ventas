@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
-  Bell, Plus, X, Phone, Calendar, DollarSign, Video, LogOut, Wallet, TrendingUp,
+  Bell, Plus, X, Phone, Calendar, DollarSign, Video, LogOut, Wallet,
   GraduationCap, ShoppingCart, Check, RefreshCw, AlertTriangle, Settings, Trash2, Clock, ChevronRight,
 } from "lucide-react";
 import storage from "./storage";
@@ -739,14 +739,15 @@ function Header({ session, isDirector, viewAgent, setViewAgent, onLogout, onRelo
 }
 
 function FinancePanel({ finance }) {
+  // "Facturado" muestra el dinero que ya entró (abonos + pagos completos), y
+  // debajo, en pequeño, el total si se cobrara todo lo comprometido.
   const items = [
-    { label: "Facturado", value: finance.facturado, icon: TrendingUp },
-    { label: "Cobrado (abonos + pagos)", value: finance.cobrado, icon: Wallet },
+    { label: "Facturado", value: finance.cobrado, icon: Wallet, sub: `Proyectado: ${fmtMoney(finance.facturado)}` },
     { label: "Saldo en cartera", value: finance.saldo, icon: AlertTriangle },
     { label: "Comisión causada", value: finance.comCausada, icon: DollarSign, highlight: true, sub: `Proyectada: ${fmtMoney(finance.comProyectada)}` },
   ];
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
       {items.map((it) => (
         <div
           key={it.label}

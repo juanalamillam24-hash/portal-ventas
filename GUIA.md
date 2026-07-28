@@ -54,17 +54,20 @@ Salir.
 
 ---
 
-## 4. Los cuatro números de arriba
+## 4. Los tres números de arriba
 
 Están en todas las pestañas y salen **siempre de las ventas**, nunca de las
-fichas de clientes. Esto es lo que significa cada uno, exactamente:
+fichas de clientes. Dos de ellos traen una cifra pequeña debajo: arriba va lo
+real, abajo lo que se espera.
 
 | Número | Cómo se calcula | Cuidado con |
 |---|---|---|
-| **Facturado** | Suma del monto de **todas** las ventas. | Incluye las marcadas como "Posible", que todavía no están confirmadas. Es el número más optimista de los cuatro. |
-| **Cobrado** | Si la venta está pagada, su monto completo. Si no, lo que se haya abonado. | Es dinero que ya entró. |
+| **Facturado** | El dinero que **ya entró**: el monto completo de las ventas pagadas, más los abonos de las que aún deben. | Debajo aparece **Proyectado**, que es la suma de todas las ventas si se cobrara todo. Ese sí incluye las marcadas como "Posible", que aún no están confirmadas. |
 | **Saldo en cartera** | Lo que falta por cobrar: monto menos abono, en las ventas no pagadas. | Las ventas pagadas cuentan como cero. |
-| **Comisión causada** | Comisión de las ventas **ya pagadas**. Debajo, en pequeño, aparece la **proyectada**, que incluye todas. | La causada es la que de verdad se debe. La proyectada es una estimación. |
+| **Comisión causada** | Comisión de las ventas **ya pagadas**. Debajo, la **proyectada**, que incluye todas. | La causada es la que de verdad se debe. La proyectada es una estimación. |
+
+La regla mental: **la cifra grande es plata en mano, la pequeña es la
+expectativa.**
 
 ---
 
@@ -264,8 +267,9 @@ cliente desaparece del grupo de Estancados durante 48 horas.
 **No hay historial.** Si alguien cambia un monto o borra una venta, no queda
 registro de quién ni cuándo.
 
-**"Facturado" incluye las ventas Posibles.** Para saber el negocio confirmado,
-mira Cobrado y Saldo en cartera.
+**El "Proyectado" incluye las ventas Posibles.** La cifra grande de Facturado
+es dinero real, pero la pequeña de debajo suma también lo que todavía no está
+confirmado. No la uses para prometer nada.
 
 ---
 
