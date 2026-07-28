@@ -56,6 +56,7 @@ const STORE = {
   clients: "nexus-embudo-clientes",
   ventas: "nexus-embudo-ventas",
   productos: "nexus-embudo-productos",
+  migrado: "nexus-embudo-migrado",
 };
 
 /* ---------------- utilidades ---------------- */
@@ -91,10 +92,21 @@ function num(v) { return Number(v) || 0; }
 
 /* ---------------- persistencia ---------------- */
 
-async function loadKey(key, fallback) {
+// Marca de "esta clave no existe todavía", distinta de cualquier valor guardado.
+const AUSENTE = Symbol("ausente");
+
+// Devuelve el valor guardado, o AUSENTE si la clave nunca se escribió.
+// Si el dato existe pero está dañado, LANZA: un error de lectura jamás debe
+// parecerse a "no hay nada guardado", porque eso dispararía la migración y
+// sobrescribiría datos buenos.
+async function loadKey(key) {
   const res = await storage.get(key);
-  if (!res || res.value == null) return fallback;
-  try { return JSON.parse(res.value); } catch { return fallback; }
+  if (!res || res.value == null) return AUSENTE;
+  try {
+    return JSON.parse(res.value);
+  } catch {
+    throw new Error(`El dato guardado en "${key}" está dañado y no se pudo leer.`);
+  }
 }
 async function saveKey(key, value) {
   await storage.set(key, JSON.stringify(value));
@@ -124,7 +136,8 @@ function emptyVenta(agent) {
     agente: agent,
     clienteId: "",
     cliente: "",
-    producto: "",
+    productoId: "",       // vínculo estable con el catálogo
+    producto: "",         // copia del nombre, por si el producto se borra
     monto: "",
     abono: "",
     tipo: "agendado",       // agendado | posible
@@ -142,10 +155,27 @@ function saldoDe(v) {
 function cobradoDe(v) {
   return v.estado === "pagado" ? num(v.monto) : num(v.abono);
 }
+// Busca por id (estable frente a renombres); cae al nombre solo para las ventas
+// viejas que se guardaron antes de que existiera productoId.
+function productoDe(v, productos) {
+  if (v.productoId) {
+    const p = productos.find((x) => x.id === v.productoId);
+    if (p) return p;
+  }
+  return productos.find((x) => x.nombre === v.producto) || null;
+}
+
 function comisionDe(v, productos) {
-  const p = productos.find((x) => x.nombre === v.producto);
+  const p = productoDe(v, productos);
   if (p && num(p.comision) > 0) return num(p.comision);
   return num(v.monto) * COMISION_PCT;
+}
+
+// Nombre a mostrar: si el producto sigue en el catálogo se usa su nombre actual,
+// así un renombre se refleja en todas partes. Si ya no está, queda la copia.
+function nombreProducto(v, productos) {
+  const p = productoDe(v, productos);
+  return (p && p.nombre) || v.producto || "";
 }
 
 // Horas desde el último movimiento del cliente.
@@ -177,6 +207,7 @@ export default function App() {
   const [ventas, setVentas] = useState([]);
   const [productos, setProductos] = useState(PRODUCTOS_DEFAULT);
   const [loading, setLoading] = useState(true);
+  const [cargaFallida, setCargaFallida] = useState(false);
   const [tab, setTab] = useState("tablero");
   const [viewAgent, setViewAgent] = useState(null);
   const [editing, setEditing] = useState(null);
@@ -192,37 +223,49 @@ export default function App() {
   const cargar = useCallback(async () => {
     setLoading(true);
     try {
-      const [cs, vs, ps] = await Promise.all([
-        loadKey(STORE.clients, []),
-        loadKey(STORE.ventas, null),
-        loadKey(STORE.productos, null),
+      const [csRaw, vsRaw, psRaw, migRaw] = await Promise.all([
+        loadKey(STORE.clients),
+        loadKey(STORE.ventas),
+        loadKey(STORE.productos),
+        loadKey(STORE.migrado),
       ]);
+
+      const cs = Array.isArray(csRaw) ? csRaw : [];
       const cl = cs.map((c) => ({ ...c, clases: c.clases || [], zooms: c.zooms || [] }));
+      let vt = Array.isArray(vsRaw) ? vsRaw : [];
 
       // Migración: los montos que vivían en la ficha del cliente pasan a ser ventas.
-      let vt = vs;
-      if (vt === null) {
-        vt = cl
-          .filter((c) => num(c.montoTotal) > 0 || num(c.abonoMonto) > 0)
-          .map((c) => ({
-            ...emptyVenta(c.agente),
-            id: uid(),
-            clienteId: c.id,
-            cliente: c.nombre,
-            producto: "",
-            monto: num(c.montoTotal),
-            abono: num(c.abonoMonto),
-            fecha: c.fechaPago || c.abonoDate || "",
-            estado: c.etapa === "pago_completo" ? "pagado" : "pendiente",
-            notas: "Migrado desde la ficha del cliente",
-          }));
-        await saveKey(STORE.ventas, vt);
+      // Solo corre en una instalación virgen (sin bandera y sin ventas guardadas),
+      // y deja la bandera puesta para no repetirse nunca.
+      if (migRaw === AUSENTE) {
+        if (vsRaw === AUSENTE) {
+          vt = cl
+            .filter((c) => num(c.montoTotal) > 0 || num(c.abonoMonto) > 0)
+            .map((c) => ({
+              ...emptyVenta(c.agente),
+              id: uid(),
+              clienteId: c.id,
+              cliente: c.nombre,
+              producto: "",
+              monto: num(c.montoTotal),
+              abono: num(c.abonoMonto),
+              fecha: c.fechaPago || c.abonoDate || "",
+              estado: c.etapa === "pago_completo" ? "pagado" : "pendiente",
+              notas: "Migrado desde la ficha del cliente",
+            }));
+          if (vt.length) await saveKey(STORE.ventas, vt);
+        }
+        await saveKey(STORE.migrado, true);
       }
 
       setClients(cl);
-      setVentas(vt || []);
-      setProductos(ps && ps.length ? ps : PRODUCTOS_DEFAULT);
+      setVentas(vt);
+      setProductos(Array.isArray(psRaw) && psRaw.length ? psRaw : PRODUCTOS_DEFAULT);
+      setCargaFallida(false);
     } catch (e) {
+      // Sin datos buenos en memoria, cualquier guardado posterior escribiría
+      // encima de lo que sí está en la base. Mejor bloquear la app.
+      setCargaFallida(true);
       notify("No se pudieron cargar los datos: " + e.message, true);
     }
     setLoading(false);
@@ -439,6 +482,21 @@ export default function App() {
       <div className="max-w-6xl mx-auto px-4 pb-24">
         {loading ? (
           <div className="text-white/40 text-sm py-16 text-center">Cargando…</div>
+        ) : cargaFallida ? (
+          <div className="mt-10 rounded border px-5 py-6 text-center"
+               style={{ borderColor: "rgba(239,68,68,0.5)", background: "rgba(239,68,68,0.07)" }}>
+            <AlertTriangle size={22} className="mx-auto mb-2" style={{ color: "#f87171" }} />
+            <div className="text-sm font-medium mb-1">No se pudieron leer los datos</div>
+            <div className="text-xs text-white/50 max-w-md mx-auto leading-relaxed">
+              La app se bloqueó a propósito: si te dejara trabajar ahora, el primer
+              guardado escribiría encima de la información que sí está en la base.
+              Revisa tu conexión y vuelve a intentarlo.
+            </div>
+            <button onClick={cargar} className="mt-4 text-sm px-4 py-2 rounded font-medium"
+                    style={{ background: GOLD, color: "black" }}>
+              Reintentar
+            </button>
+          </div>
         ) : (
           <>
             <FinancePanel finance={finance} />
@@ -495,6 +553,7 @@ export default function App() {
               <Cartera
                 items={cartera}
                 clients={clients}
+                productos={productos}
                 mostrarAgente={consolidado}
                 onUpdate={updateVenta}
                 onAdd={nuevaVenta}
@@ -1037,14 +1096,14 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
   const porProducto = useMemo(() => {
     const map = {};
     ventas.forEach((v) => {
-      const k = v.producto || "Sin producto";
+      const k = nombreProducto(v, productos) || "Sin producto";
       if (!map[k]) map[k] = { producto: k, unidades: 0, monto: 0, cobrado: 0 };
       map[k].unidades += 1;
       map[k].monto += num(v.monto);
       map[k].cobrado += cobradoDe(v);
     });
     return Object.values(map).sort((a, b) => b.monto - a.monto);
-  }, [ventas]);
+  }, [ventas, productos]);
 
   // Ranking por agente (solo tiene sentido en vista consolidada)
   const porAgente = useMemo(() => {
@@ -1104,7 +1163,7 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
                       {v.notas && <div className="text-[11px] text-white/35 font-normal">{v.notas}</div>}
                     </td>
                     {mostrarAgente && <td className="px-3 py-2 text-white/50 text-xs">{v.agente}</td>}
-                    <td className="px-3 py-2 text-white/70">{v.producto || "—"}</td>
+                    <td className="px-3 py-2 text-white/70">{nombreProducto(v, productos) || "—"}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{fmtMoney(v.monto)}</td>
                     <td className="px-3 py-2 text-right w-28">
                       <input
@@ -1222,7 +1281,7 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
 
 /* ---------------- MÓDULO: CARTERA (mis ventas pendientes) ---------------- */
 
-function Cartera({ items, clients, mostrarAgente, onUpdate, onAdd }) {
+function Cartera({ items, clients, productos, mostrarAgente, onUpdate, onAdd }) {
   const vencidos = items.filter((v) => v.dias !== null && v.dias < 0);
   const totalSaldo = items.reduce((s, v) => s + v.saldo, 0);
   const totalVencido = vencidos.reduce((s, v) => s + v.saldo, 0);
@@ -1270,7 +1329,7 @@ function Cartera({ items, clients, mostrarAgente, onUpdate, onAdd }) {
                       {mostrarAgente && <span className="text-white/40 text-xs"> ({v.agente})</span>}
                     </div>
                     <div className="text-xs text-white/50 mt-0.5">
-                      {v.producto || "Sin servicio"} · Total {fmtMoney(v.monto)} · Abonado {fmtMoney(v.abono)}
+                      {nombreProducto(v, productos) || "Sin servicio"} · Total {fmtMoney(v.monto)} · Abonado {fmtMoney(v.abono)}
                     </div>
                     {v.notas && <div className="text-[11px] text-white/35 mt-0.5">{v.notas}</div>}
                   </div>
@@ -1546,10 +1605,24 @@ function VentaModal({ venta, productos, clientes, agents, isDirector, onClose, o
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const activos = productos.filter((p) => p.activo);
 
-  // Al elegir el servicio, se precarga el precio del catálogo (editable).
-  function elegirProducto(nombre) {
-    const p = productos.find((x) => x.nombre === nombre);
-    setForm((f) => ({ ...f, producto: nombre, monto: p && num(p.precio) > 0 ? p.precio : f.monto }));
+  // Al elegir el servicio se guarda su id (vínculo estable) y una copia del
+  // nombre. El precio del catálogo se precarga, pero queda editable.
+  function elegirProducto(id) {
+    if (id === "__otro__") {
+      setForm((f) => ({ ...f, productoId: "", producto: "Otro" }));
+      return;
+    }
+    const p = productos.find((x) => x.id === id);
+    if (!p) {
+      setForm((f) => ({ ...f, productoId: "", producto: "" }));
+      return;
+    }
+    setForm((f) => ({
+      ...f,
+      productoId: p.id,
+      producto: p.nombre,
+      monto: num(p.precio) > 0 ? p.precio : f.monto,
+    }));
   }
 
   function elegirCliente(id) {
@@ -1593,7 +1666,11 @@ function VentaModal({ venta, productos, clientes, agents, isDirector, onClose, o
           </Field>
 
           <Field label="Servicio vendido">
-            <select className="input" value={form.producto} onChange={(e) => elegirProducto(e.target.value)}>
+            <select
+              className="input"
+              value={form.productoId || (form.producto ? "__otro__" : "")}
+              onChange={(e) => elegirProducto(e.target.value)}
+            >
               <option value="">— Elegir servicio —</option>
               {["membresia", "upgrade", "otro"].map((tipo) => {
                 const grupo = activos.filter((p) => p.tipo === tipo);
@@ -1601,14 +1678,14 @@ function VentaModal({ venta, productos, clientes, agents, isDirector, onClose, o
                 return (
                   <optgroup key={tipo} label={tipo === "membresia" ? "Membresías" : tipo === "upgrade" ? "Upgrades" : "Otros"}>
                     {grupo.map((p) => (
-                      <option key={p.id} value={p.nombre}>
+                      <option key={p.id} value={p.id}>
                         {p.nombre}{num(p.precio) > 0 ? ` (${fmtMoney(p.precio)})` : ""}
                       </option>
                     ))}
                   </optgroup>
                 );
               })}
-              <option value="Otro">Otro (personalizado)</option>
+              <option value="__otro__">Otro (personalizado)</option>
             </select>
           </Field>
 
