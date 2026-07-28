@@ -1,8 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// En Cloudflare Pages el sitio se sirve desde la raíz del dominio.
+// GitHub Pages sirve el sitio desde /portal-ventas/, mientras que Cloudflare y
+// el servidor local lo sirven desde la raíz. El workflow de Pages define BASE.
+const base = process.env.BASE || "/";
+
 export default defineConfig({
   plugins: [react()],
-  base: "/",
+  base,
 });

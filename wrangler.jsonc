@@ -1,0 +1,10 @@
+{
+  // Sitio estático (SPA de Vite) servido por Cloudflare Workers.
+  // Con "assets" y sin "main", wrangler publica el contenido de ./dist.
+  "name": "portal-ventas",
+  "compatibility_date": "2025-07-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

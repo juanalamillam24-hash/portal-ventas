@@ -57,9 +57,28 @@ Abre la dirección que aparece en la terminal (normalmente http://localhost:5173
 npm run build
 ```
 
-Eso genera la carpeta `dist/`, que es lo que se sube a Cloudflare Pages, Vercel
-o Netlify. Configura `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` como
+Eso genera la carpeta `dist/`, que es lo que se sube a cualquier hosting
+estático. Configura `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` como
 variables de entorno también en el sitio donde publiques.
+
+### Publicación automática con GitHub Actions
+
+El repositorio trae un workflow (`.github/workflows/deploy.yml`) que construye y
+publica en **GitHub Pages** en cada push. Para que funcione hay que hacer dos
+cosas **una sola vez**, desde la web de GitHub:
+
+1. **Activar Pages.** Settings → Pages → en *Source* elige **GitHub Actions**.
+2. **Agregar los dos secretos.** Settings → Secrets and variables → Actions →
+   *New repository secret*, uno por cada uno:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+
+Hecho eso, cada push publica solo. La dirección queda en
+`https://<usuario>.github.io/portal-ventas/` y también aparece al final del
+registro del workflow, en la pestaña **Actions**.
+
+Si faltan los secretos, el workflow falla a propósito con un mensaje que dice
+cuál falta, en vez de publicar un sitio roto que no conecta con la base.
 
 ---
 
