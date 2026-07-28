@@ -51,7 +51,28 @@ const PRODUCTOS_DEFAULT = [
 // Si un producto no tiene comisión fija definida, se usa este porcentaje del monto.
 const COMISION_PCT = 0.25;
 
-const GOLD = "#C9A227";
+/* Paleta clara, la misma que usa elitenexus, para que las dos apps se vean
+   como un solo producto. GOLD es el dorado de relleno (botones, bordes);
+   GOLD_TEXT es una versión más oscura para texto pequeño, donde el dorado
+   claro no contrasta lo suficiente sobre blanco. */
+const GOLD = "#B8902B";
+const GOLD_TEXT = "#8C6B1F";
+const GOLD_BG = "#FBF6E8";
+const GOLD_BORDE = "rgba(184,144,43,0.40)";
+
+const APAGADO = "#8A8477";
+const TENUE = "#A9A296";
+const LINEA = "#E9E2D0";
+
+const ROJO = "#AE3A2E";
+const ROJO_BG = "#FBEAE8";
+const ROJO_BORDE = "rgba(174,58,46,0.35)";
+const VERDE = "#3C6E47";
+const VERDE_BG = "#EAF2EC";
+const AMBAR = "#8A6410";
+const AMBAR_BG = "#FBF3E2";
+const AMBAR_BORDE = "rgba(138,100,16,0.30)";
+
 const STORE = {
   clients: "nexus-embudo-clientes",
   ventas: "nexus-embudo-ventas",
@@ -467,7 +488,7 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white" style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAF8F3] text-[#1C1B19]" style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
       <GlobalStyle />
       <Header
         session={session}
@@ -481,19 +502,19 @@ export default function App() {
 
       <div className="max-w-6xl mx-auto px-4 pb-24">
         {loading ? (
-          <div className="text-white/40 text-sm py-16 text-center">Cargando…</div>
+          <div className="text-[#8A8477] text-sm py-16 text-center">Cargando…</div>
         ) : cargaFallida ? (
           <div className="mt-10 rounded border px-5 py-6 text-center"
-               style={{ borderColor: "rgba(239,68,68,0.5)", background: "rgba(239,68,68,0.07)" }}>
-            <AlertTriangle size={22} className="mx-auto mb-2" style={{ color: "#f87171" }} />
+               style={{ borderColor: ROJO_BORDE, background: ROJO_BG }}>
+            <AlertTriangle size={22} className="mx-auto mb-2" style={{ color: ROJO }} />
             <div className="text-sm font-medium mb-1">No se pudieron leer los datos</div>
-            <div className="text-xs text-white/50 max-w-md mx-auto leading-relaxed">
+            <div className="text-xs text-[#6E685C] max-w-md mx-auto leading-relaxed">
               La app se bloqueó a propósito: si te dejara trabajar ahora, el primer
               guardado escribiría encima de la información que sí está en la base.
               Revisa tu conexión y vuelve a intentarlo.
             </div>
             <button onClick={cargar} className="mt-4 text-sm px-4 py-2 rounded font-medium"
-                    style={{ background: GOLD, color: "black" }}>
+                    style={{ background: GOLD, color: "#1C1B19" }}>
               Reintentar
             </button>
           </div>
@@ -502,15 +523,15 @@ export default function App() {
             <FinancePanel finance={finance} />
             {alerts.length > 0 && <AlertsBar alerts={alerts} />}
 
-            <div className="flex gap-1 mt-6 mb-4 border-b border-white/10 overflow-x-auto">
+            <div className="flex gap-1 mt-6 mb-4 border-b border-[#E9E2D0] overflow-x-auto">
               {TABS.map((t) => (
                 <button
                   key={t.k}
                   onClick={() => setTab(t.k)}
                   className={`px-4 py-2 text-sm tracking-wide uppercase whitespace-nowrap transition ${
-                    tab === t.k ? "border-b-2" : "text-white/40 hover:text-white/70"
+                    tab === t.k ? "border-b-2" : "text-[#8A8477] hover:text-[#5C574E]"
                   }`}
-                  style={tab === t.k ? { borderColor: GOLD, color: GOLD } : {}}
+                  style={tab === t.k ? { borderColor: GOLD, color: GOLD_TEXT } : {}}
                 >
                   {t.label}
                 </button>
@@ -613,7 +634,7 @@ export default function App() {
       {toast && (
         <div
           className="fixed bottom-5 right-5 px-4 py-3 rounded text-sm font-medium z-40 max-w-sm"
-          style={{ background: toast.err ? "#ef4444" : GOLD, color: toast.err ? "white" : "black" }}
+          style={{ background: toast.err ? ROJO : GOLD, color: toast.err ? "white" : "black" }}
         >
           {toast.msg}
         </div>
@@ -642,9 +663,9 @@ function whatsappLink(telefono, msg) {
 function GlobalStyle() {
   return (
     <style>{`
-      .input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:8px 10px;color:white;font-size:14px}
+      .input{width:100%;background:#FFFFFF;border:1px solid ${LINEA};border-radius:6px;padding:8px 10px;color:#1C1B19;font-size:14px}
       .input:focus{outline:none;border-color:${GOLD}}
-      .cellin{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:5px;padding:5px 8px;color:white;font-size:13px;width:100%}
+      .cellin{background:#FFFFFF;border:1px solid ${LINEA};border-radius:5px;padding:5px 8px;color:#1C1B19;font-size:13px;width:100%}
       .cellin:focus{outline:none;border-color:${GOLD}}
     `}</style>
   );
@@ -652,26 +673,26 @@ function GlobalStyle() {
 
 function LoginScreen({ onLogin }) {
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#FAF8F3] text-[#1C1B19] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-4xl font-bold tracking-widest" style={{ color: GOLD }}>NEXUS</div>
-          <div className="text-white/50 text-xs tracking-[0.3em] mt-1">OFICINA ELITE — TORRE DE CONTROL</div>
+          <div className="text-[#6E685C] text-xs tracking-[0.3em] mt-1">OFICINA ELITE — TORRE DE CONTROL</div>
         </div>
         <button
           onClick={() => onLogin(DIRECTOR, true)}
           className="w-full mb-4 py-3 rounded border text-sm tracking-wide uppercase font-semibold"
-          style={{ borderColor: GOLD, color: GOLD }}
+          style={{ borderColor: GOLD, color: GOLD_TEXT }}
         >
           Entrar como Directora
         </button>
-        <div className="text-white/40 text-xs uppercase tracking-widest mb-2 mt-6">Agentes</div>
+        <div className="text-[#8A8477] text-xs uppercase tracking-widest mb-2 mt-6">Agentes</div>
         <div className="grid grid-cols-1 gap-2 max-h-[50vh] overflow-y-auto pr-1">
           {AGENTS.map((a) => (
             <button
               key={a}
               onClick={() => onLogin(a, false)}
-              className="w-full text-left px-4 py-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-sm"
+              className="w-full text-left px-4 py-2.5 rounded bg-white hover:bg-[#F3EFE6] border border-[#E9E2D0] text-sm"
             >
               {a}
             </button>
@@ -684,31 +705,31 @@ function LoginScreen({ onLogin }) {
 
 function Header({ session, isDirector, viewAgent, setViewAgent, onLogout, onReload, alertCount }) {
   return (
-    <div className="border-b border-white/10 sticky top-0 bg-black z-10">
+    <div className="border-b border-[#E9E2D0] sticky top-0 bg-[#FAF8F3] z-10">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">
           <span className="text-xl font-bold tracking-widest" style={{ color: GOLD }}>NEXUS</span>
-          <span className="text-white/30 text-sm">{session.name}</span>
+          <span className="text-[#A9A296] text-sm">{session.name}</span>
         </div>
         <div className="flex items-center gap-3">
           {isDirector && (
             <select
               value={viewAgent || ""}
               onChange={(e) => setViewAgent(e.target.value || null)}
-              className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-sm text-white"
+              className="bg-white border border-[#E9E2D0] rounded px-2 py-1.5 text-sm text-[#1C1B19]"
             >
               <option value="">Vista consolidada (todos)</option>
               {AGENTS.map((a) => <option key={a} value={a}>{a}</option>)}
             </select>
           )}
-          <button onClick={onReload} title="Recargar datos" className="text-white/50 hover:text-white">
+          <button onClick={onReload} title="Recargar datos" className="text-[#6E685C] hover:text-[#1C1B19]">
             <RefreshCw size={15} />
           </button>
-          <div className="flex items-center gap-1 text-sm text-white/60">
+          <div className="flex items-center gap-1 text-sm text-[#5C574E]">
             <Bell size={16} style={alertCount > 0 ? { color: GOLD } : {}} />
-            {alertCount > 0 && <span style={{ color: GOLD }}>{alertCount}</span>}
+            {alertCount > 0 && <span style={{ color: GOLD_TEXT }}>{alertCount}</span>}
           </div>
-          <button onClick={onLogout} className="text-white/50 hover:text-white flex items-center gap-1 text-sm">
+          <button onClick={onLogout} className="text-[#6E685C] hover:text-[#1C1B19] flex items-center gap-1 text-sm">
             <LogOut size={15} /> Salir
           </button>
         </div>
@@ -731,17 +752,17 @@ function FinancePanel({ finance }) {
           key={it.label}
           className="rounded-lg border p-4"
           style={{
-            borderColor: it.highlight ? GOLD : "rgba(255,255,255,0.1)",
-            background: it.highlight ? "rgba(201,162,39,0.08)" : "rgba(255,255,255,0.03)",
+            borderColor: it.highlight ? GOLD : LINEA,
+            background: it.highlight ? GOLD_BG : "#FFFFFF",
           }}
         >
-          <div className="flex items-center gap-2 text-white/50 text-xs uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-[#6E685C] text-xs uppercase tracking-wider mb-1">
             <it.icon size={14} /> {it.label}
           </div>
-          <div className="text-2xl font-semibold" style={{ color: it.highlight ? GOLD : "white" }}>
+          <div className="text-2xl font-semibold" style={{ color: it.highlight ? GOLD_TEXT : "#1C1B19" }}>
             {fmtMoney(it.value)}
           </div>
-          {it.sub && <div className="text-[11px] text-white/40 mt-1">{it.sub}</div>}
+          {it.sub && <div className="text-[11px] text-[#8A8477] mt-1">{it.sub}</div>}
         </div>
       ))}
     </div>
@@ -761,26 +782,26 @@ function AlertsBar({ alerts }) {
             key={a.id}
             className="flex items-center justify-between gap-3 rounded border px-4 py-2.5 flex-wrap"
             style={{
-              borderColor: a.urgente ? "#ef4444" : GOLD,
-              background: a.urgente ? "rgba(239,68,68,0.08)" : "rgba(201,162,39,0.08)",
+              borderColor: a.urgente ? ROJO : GOLD,
+              background: a.urgente ? ROJO_BG : GOLD_BG,
             }}
           >
             <div className="flex items-center gap-2 text-sm">
               {a.tipo === "zoom"
                 ? <Video size={15} style={{ color: GOLD }} />
-                : <Calendar size={15} style={{ color: a.urgente ? "#ef4444" : GOLD }} />}
+                : <Calendar size={15} style={{ color: a.urgente ? ROJO : GOLD }} />}
               <span className="font-medium">{a.titulo}</span>
-              <span className="text-white/60">— {a.nombre || "Sin nombre"} ({a.agente})</span>
-              {a.monto > 0 && <span className="text-white/40">· {fmtMoney(a.monto)}</span>}
+              <span className="text-[#5C574E]">— {a.nombre || "Sin nombre"} ({a.agente})</span>
+              {a.monto > 0 && <span className="text-[#8A8477]">· {fmtMoney(a.monto)}</span>}
             </div>
             {link ? (
               <a href={link} target="_blank" rel="noreferrer"
                  className="text-xs px-3 py-1 rounded whitespace-nowrap"
-                 style={{ background: GOLD, color: "black" }}>
+                 style={{ background: GOLD, color: "#1C1B19" }}>
                 WhatsApp
               </a>
             ) : (
-              <span className="text-[11px] text-white/30">Sin teléfono registrado</span>
+              <span className="text-[11px] text-[#A9A296]">Sin teléfono registrado</span>
             )}
           </div>
         );
@@ -792,10 +813,10 @@ function AlertsBar({ alerts }) {
 /* ---------------- PRIORIDAD DEL DÍA ---------------- */
 
 const TONOS = {
-  bad:  { color: "#f87171", border: "rgba(239,68,68,0.45)",  bg: "rgba(239,68,68,0.07)" },
-  warn: { color: "#facc15", border: "rgba(234,179,8,0.4)",   bg: "rgba(234,179,8,0.06)" },
-  gold: { color: GOLD,      border: "rgba(201,162,39,0.35)", bg: "rgba(201,162,39,0.05)" },
-  mut:  { color: "rgba(255,255,255,0.45)", border: "rgba(255,255,255,0.1)", bg: "transparent" },
+  bad:  { color: ROJO, border: ROJO_BORDE,  bg: ROJO_BG },
+  warn: { color: AMBAR, border: AMBAR_BORDE,   bg: AMBAR_BG },
+  gold: { color: GOLD_TEXT, border: GOLD_BORDE, bg: GOLD_BG },
+  mut:  { color: APAGADO, border: LINEA, bg: "transparent" },
 };
 
 function Prioridad({ agenda, clients, onEdit, onAdd, onEtapa, mostrarAgente }) {
@@ -818,24 +839,24 @@ function Prioridad({ agenda, clients, onEdit, onAdd, onEtapa, mostrarAgente }) {
           const n = clients.filter((c) => c.etapa === s.key).length;
           return (
             <div key={s.key} className="flex-1 min-w-[92px] rounded border px-3 py-2"
-                 style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-              <div className="text-[9px] uppercase tracking-wider text-white/35 leading-tight">{s.label}</div>
-              <div className="text-lg font-semibold tabular-nums" style={{ color: n ? "white" : "rgba(255,255,255,0.2)" }}>{n}</div>
+                 style={{ borderColor: LINEA, background: "#FFFFFF" }}>
+              <div className="text-[9px] uppercase tracking-wider text-[#8A8477] leading-tight">{s.label}</div>
+              <div className="text-lg font-semibold tabular-nums" style={{ color: n ? "#1C1B19" : TENUE }}>{n}</div>
             </div>
           );
         })}
       </div>
 
       <div className="flex items-center gap-3 mb-4">
-        <span className="text-xs text-white/40">{clients.length} cliente(s)</span>
+        <span className="text-xs text-[#8A8477]">{clients.length} cliente(s)</span>
         <button onClick={onAdd} className="flex items-center gap-1 text-sm px-3 py-2 rounded ml-auto"
-                style={{ background: GOLD, color: "black" }}>
+                style={{ background: GOLD, color: "#1C1B19" }}>
           <Plus size={15} /> Nuevo cliente
         </button>
       </div>
 
       {clients.length === 0 && (
-        <div className="text-white/40 text-sm py-12 text-center border border-dashed border-white/10 rounded">
+        <div className="text-[#8A8477] text-sm py-12 text-center border border-dashed border-[#E9E2D0] rounded">
           Aún no tienes clientes. Crea el primero con “Nuevo cliente”.
         </div>
       )}
@@ -851,8 +872,8 @@ function Prioridad({ agenda, clients, onEdit, onAdd, onEtapa, mostrarAgente }) {
                 <span className="text-xs uppercase tracking-[0.15em] font-semibold" style={{ color: t.color }}>
                   {g.titulo}
                 </span>
-                <span className="text-xs text-white/30 tabular-nums">{g.filas.length}</span>
-                <span className="text-[11px] text-white/25 hidden sm:inline">— {g.desc}</span>
+                <span className="text-xs text-[#A9A296] tabular-nums">{g.filas.length}</span>
+                <span className="text-[11px] text-[#A9A296] hidden sm:inline">— {g.desc}</span>
               </div>
 
               <div className="space-y-1.5">
@@ -889,9 +910,9 @@ function FilaPrioridad({ fila, tono, mostrarAgente, onEdit, onEtapa }) {
       <div className="min-w-[150px] flex-1">
         <button onClick={() => onEdit(c)} className="text-sm font-medium hover:underline text-left flex items-center gap-1">
           {c.nombre || "Sin nombre"}
-          <ChevronRight size={13} className="text-white/25" />
+          <ChevronRight size={13} className="text-[#A9A296]" />
         </button>
-        <div className="flex items-center gap-2.5 text-[11px] text-white/35 mt-0.5 flex-wrap">
+        <div className="flex items-center gap-2.5 text-[11px] text-[#8A8477] mt-0.5 flex-wrap">
           {mostrarAgente && <span>{c.agente}</span>}
           <span className="flex items-center gap-1"><Phone size={10} /> {c.telefono || "—"}</span>
           <span className="flex items-center gap-1">
@@ -906,7 +927,7 @@ function FilaPrioridad({ fila, tono, mostrarAgente, onEdit, onEtapa }) {
       <div className="flex items-center gap-1.5 flex-wrap">
         {fila.motivos.map((m, i) => (
           <span key={i} className="text-[11px] px-2 py-0.5 rounded whitespace-nowrap"
-                style={{ background: TONOS[m.tono].bg === "transparent" ? "rgba(255,255,255,0.06)" : TONOS[m.tono].bg,
+                style={{ background: TONOS[m.tono].bg === "transparent" ? "#F3EFE6" : TONOS[m.tono].bg,
                          color: TONOS[m.tono].color, border: `1px solid ${TONOS[m.tono].border}` }}>
             {m.txt}
           </span>
@@ -921,7 +942,7 @@ function FilaPrioridad({ fila, tono, mostrarAgente, onEdit, onEtapa }) {
 
       {fila.saldo > 0 && (
         <div className="text-right">
-          <div className="text-[9px] uppercase tracking-wider text-white/30">Saldo</div>
+          <div className="text-[9px] uppercase tracking-wider text-[#A9A296]">Saldo</div>
           <div className="text-sm font-semibold tabular-nums" style={{ color: tono.color }}>{fmtMoney(fila.saldo)}</div>
         </div>
       )}
@@ -929,7 +950,7 @@ function FilaPrioridad({ fila, tono, mostrarAgente, onEdit, onEtapa }) {
       <select
         value={c.etapa}
         onChange={(e) => onEtapa(c.id, e.target.value)}
-        className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70"
+        className="bg-white border border-[#E9E2D0] rounded px-2 py-1.5 text-xs text-[#3D3931]"
         title="Cambiar etapa del embudo"
       >
         {STAGES.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
@@ -938,11 +959,11 @@ function FilaPrioridad({ fila, tono, mostrarAgente, onEdit, onEtapa }) {
       {link ? (
         <a href={link} target="_blank" rel="noreferrer"
            className="text-[11px] px-3 py-1.5 rounded font-semibold whitespace-nowrap"
-           style={{ background: GOLD, color: "black" }}>
+           style={{ background: GOLD, color: "#1C1B19" }}>
           WhatsApp
         </a>
       ) : (
-        <span className="text-[10px] text-white/25 whitespace-nowrap">Sin teléfono</span>
+        <span className="text-[10px] text-[#A9A296] whitespace-nowrap">Sin teléfono</span>
       )}
     </div>
   );
@@ -996,34 +1017,34 @@ function Membresia({ clients, mostrarAgente, onUpdate, onAdd }) {
           <option value="en_curso">Clases en curso</option>
           <option value="completo">Clases y zooms completos</option>
         </select>
-        <button onClick={onAdd} className="flex items-center gap-1 text-sm px-3 py-2 rounded ml-auto" style={{ background: GOLD, color: "black" }}>
+        <button onClick={onAdd} className="flex items-center gap-1 text-sm px-3 py-2 rounded ml-auto" style={{ background: GOLD, color: "#1C1B19" }}>
           <Plus size={15} /> Nuevo cliente
         </button>
       </div>
 
       {lista.length === 0 ? (
-        <div className="text-white/40 text-sm py-10 text-center">Ningún cliente coincide con el filtro.</div>
+        <div className="text-[#8A8477] text-sm py-10 text-center">Ningún cliente coincide con el filtro.</div>
       ) : (
         <div className="space-y-2">
           {lista.map((c) => (
-            <div key={c.id} className="rounded border border-white/10 bg-white/5 p-4">
+            <div key={c.id} className="rounded border border-[#E9E2D0] bg-white p-4">
               <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
                 <div>
                   <div className="text-sm font-medium">
                     {c.nombre || "Sin nombre"}
-                    {mostrarAgente && <span className="text-white/40 text-xs"> ({c.agente})</span>}
+                    {mostrarAgente && <span className="text-[#8A8477] text-xs"> ({c.agente})</span>}
                   </div>
-                  <div className="text-[11px] text-white/40">
+                  <div className="text-[11px] text-[#8A8477]">
                     {STAGES.find((s) => s.key === c.etapa)?.label || "—"}
                   </div>
                 </div>
-                <div className="text-[11px] text-white/40">
+                <div className="text-[11px] text-[#8A8477]">
                   {(c.clases || []).length}/{CLASES.length} clases · {(c.zooms || []).length}/{ZOOMS.length} zooms
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <span className="text-[10px] uppercase tracking-wider text-white/40 w-14">Clases</span>
+                <span className="text-[10px] uppercase tracking-wider text-[#8A8477] w-14">Clases</span>
                 {CLASES.map((n) => {
                   const on = (c.clases || []).includes(n);
                   return (
@@ -1032,8 +1053,8 @@ function Membresia({ clients, mostrarAgente, onUpdate, onAdd }) {
                       onClick={() => toggle(c, "clases", n)}
                       className="w-8 h-8 rounded-full text-xs font-semibold border transition"
                       style={on
-                        ? { background: GOLD, borderColor: GOLD, color: "black" }
-                        : { borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.45)" }}
+                        ? { background: GOLD, borderColor: GOLD, color: "#1C1B19" }
+                        : { borderColor: LINEA, color: APAGADO }}
                     >
                       {n}
                     </button>
@@ -1042,7 +1063,7 @@ function Membresia({ clients, mostrarAgente, onUpdate, onAdd }) {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] uppercase tracking-wider text-white/40 w-14">Zooms</span>
+                <span className="text-[10px] uppercase tracking-wider text-[#8A8477] w-14">Zooms</span>
                 {ZOOMS.map((z) => {
                   const on = (c.zooms || []).includes(z.key);
                   return (
@@ -1051,8 +1072,8 @@ function Membresia({ clients, mostrarAgente, onUpdate, onAdd }) {
                       onClick={() => toggle(c, "zooms", z.key)}
                       className="px-3 h-8 rounded-full text-xs font-semibold border transition flex items-center gap-1.5"
                       style={on
-                        ? { background: "rgba(201,162,39,0.18)", borderColor: GOLD, color: GOLD }
-                        : { borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.45)" }}
+                        ? { background: "#F3E8C9", borderColor: GOLD, color: GOLD_TEXT }
+                        : { borderColor: LINEA, color: APAGADO }}
                     >
                       {on && <Check size={12} />} {z.label}
                     </button>
@@ -1069,9 +1090,9 @@ function Membresia({ clients, mostrarAgente, onUpdate, onAdd }) {
 
 function MiniStat({ label, value, alerta }) {
   return (
-    <div className="rounded-lg border p-3" style={{ borderColor: alerta ? "rgba(239,68,68,0.4)" : "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)" }}>
-      <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">{label}</div>
-      <div className="text-xl font-semibold" style={{ color: alerta ? "#f87171" : "white" }}>{value}</div>
+    <div className="rounded-lg border p-3" style={{ borderColor: alerta ? ROJO_BORDE : LINEA, background: "#FFFFFF" }}>
+      <div className="text-[10px] uppercase tracking-wider text-[#8A8477] mb-1">{label}</div>
+      <div className="text-xl font-semibold" style={{ color: alerta ? ROJO : "#1C1B19" }}>{value}</div>
     </div>
   );
 }
@@ -1127,20 +1148,20 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
           <option value="pagadas">Pagadas</option>
           <option value="posibles">Posibles</option>
         </select>
-        <button onClick={onAdd} className="flex items-center gap-1 text-sm px-3 py-2 rounded ml-auto" style={{ background: GOLD, color: "black" }}>
+        <button onClick={onAdd} className="flex items-center gap-1 text-sm px-3 py-2 rounded ml-auto" style={{ background: GOLD, color: "#1C1B19" }}>
           <ShoppingCart size={15} /> Reportar venta
         </button>
       </div>
 
       {lista.length === 0 ? (
-        <div className="text-white/40 text-sm py-10 text-center">
+        <div className="text-[#8A8477] text-sm py-10 text-center">
           Aún no hay ventas reportadas. Usa “Reportar venta” para registrar el servicio vendido.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded border border-white/10">
+        <div className="overflow-x-auto rounded border border-[#E9E2D0]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-white/40 text-[10px] uppercase tracking-wider border-b border-white/10">
+              <tr className="text-[#8A8477] text-[10px] uppercase tracking-wider border-b border-[#E9E2D0]">
                 <th className="text-left px-3 py-2">Cliente</th>
                 {mostrarAgente && <th className="text-left px-3 py-2">Agente</th>}
                 <th className="text-left px-3 py-2">Servicio</th>
@@ -1157,13 +1178,13 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
                 const saldo = saldoDe(v);
                 const pagado = v.estado === "pagado";
                 return (
-                  <tr key={v.id} className="border-b border-white/5 hover:bg-white/5" style={pagado ? { opacity: 0.55 } : {}}>
+                  <tr key={v.id} className="border-b border-[#EFE9DC] hover:bg-[#FBF9F4]" style={pagado ? { opacity: 0.55 } : {}}>
                     <td className="px-3 py-2 font-medium">
                       {v.cliente || "Sin nombre"}
-                      {v.notas && <div className="text-[11px] text-white/35 font-normal">{v.notas}</div>}
+                      {v.notas && <div className="text-[11px] text-[#8A8477] font-normal">{v.notas}</div>}
                     </td>
-                    {mostrarAgente && <td className="px-3 py-2 text-white/50 text-xs">{v.agente}</td>}
-                    <td className="px-3 py-2 text-white/70">{nombreProducto(v, productos) || "—"}</td>
+                    {mostrarAgente && <td className="px-3 py-2 text-[#6E685C] text-xs">{v.agente}</td>}
+                    <td className="px-3 py-2 text-[#3D3931]">{nombreProducto(v, productos) || "—"}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{fmtMoney(v.monto)}</td>
                     <td className="px-3 py-2 text-right w-28">
                       <input
@@ -1174,7 +1195,7 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
                         onBlur={(e) => { if (e.target.value !== String(v.abono ?? "")) onUpdate(v.id, { abono: e.target.value }); }}
                       />
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums" style={{ color: saldo > 0 ? GOLD : "#4ade80" }}>
+                    <td className="px-3 py-2 text-right tabular-nums" style={{ color: saldo > 0 ? GOLD_TEXT : VERDE }}>
                       {fmtMoney(saldo)}
                     </td>
                     <td className="px-3 py-2 w-36">
@@ -1188,10 +1209,10 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
                     <td className="px-3 py-2">
                       <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded"
                             style={pagado
-                              ? { background: "rgba(74,222,128,0.15)", color: "#4ade80" }
+                              ? { background: VERDE_BG, color: VERDE }
                               : v.tipo === "posible"
-                                ? { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)" }
-                                : { background: "rgba(201,162,39,0.15)", color: GOLD }}>
+                                ? { background: "#F3EFE6", color: APAGADO }
+                                : { background: GOLD_BG, color: GOLD_TEXT }}>
                         {pagado ? "Pagado" : v.tipo === "posible" ? "Posible" : "Agendado"}
                       </span>
                     </td>
@@ -1199,12 +1220,12 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
                       <button
                         title={pagado ? "Marcar como pendiente" : "Marcar como pagado"}
                         onClick={() => onUpdate(v.id, { estado: pagado ? "pendiente" : "pagado" })}
-                        className="text-white/40 hover:text-white px-1"
+                        className="text-[#8A8477] hover:text-[#1C1B19] px-1"
                       >
                         <Check size={15} />
                       </button>
-                      <button title="Editar" onClick={() => onEdit(v)} className="text-white/40 hover:text-white px-1">✎</button>
-                      <button title="Eliminar" onClick={() => onDelete(v.id, v.cliente)} className="text-white/40 hover:text-red-400 px-1">
+                      <button title="Editar" onClick={() => onEdit(v)} className="text-[#8A8477] hover:text-[#1C1B19] px-1">✎</button>
+                      <button title="Eliminar" onClick={() => onDelete(v.id, v.cliente)} className="text-[#8A8477] hover:text-red-400 px-1">
                         <Trash2 size={14} />
                       </button>
                     </td>
@@ -1218,11 +1239,11 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
 
       {porProducto.length > 0 && (
         <div className="mt-6">
-          <div className="text-xs uppercase tracking-wider text-white/50 mb-2">Ventas por servicio</div>
-          <div className="overflow-x-auto rounded border border-white/10">
+          <div className="text-xs uppercase tracking-wider text-[#6E685C] mb-2">Ventas por servicio</div>
+          <div className="overflow-x-auto rounded border border-[#E9E2D0]">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-white/40 text-[10px] uppercase tracking-wider border-b border-white/10">
+                <tr className="text-[#8A8477] text-[10px] uppercase tracking-wider border-b border-[#E9E2D0]">
                   <th className="text-left px-3 py-2">Servicio</th>
                   <th className="text-right px-3 py-2">Unidades</th>
                   <th className="text-right px-3 py-2">Facturado</th>
@@ -1231,11 +1252,11 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
               </thead>
               <tbody>
                 {porProducto.map((p) => (
-                  <tr key={p.producto} className="border-b border-white/5">
+                  <tr key={p.producto} className="border-b border-[#EFE9DC]">
                     <td className="px-3 py-2">{p.producto}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{p.unidades}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{fmtMoney(p.monto)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums" style={{ color: "#4ade80" }}>{fmtMoney(p.cobrado)}</td>
+                    <td className="px-3 py-2 text-right tabular-nums" style={{ color: VERDE }}>{fmtMoney(p.cobrado)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1246,11 +1267,11 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
 
       {mostrarAgente && porAgente.length > 0 && (
         <div className="mt-6">
-          <div className="text-xs uppercase tracking-wider text-white/50 mb-2">Ranking por agente</div>
-          <div className="overflow-x-auto rounded border border-white/10">
+          <div className="text-xs uppercase tracking-wider text-[#6E685C] mb-2">Ranking por agente</div>
+          <div className="overflow-x-auto rounded border border-[#E9E2D0]">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-white/40 text-[10px] uppercase tracking-wider border-b border-white/10">
+                <tr className="text-[#8A8477] text-[10px] uppercase tracking-wider border-b border-[#E9E2D0]">
                   <th className="text-left px-3 py-2">#</th>
                   <th className="text-left px-3 py-2">Agente</th>
                   <th className="text-right px-3 py-2">Ventas</th>
@@ -1261,13 +1282,13 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
               </thead>
               <tbody>
                 {porAgente.map((a, i) => (
-                  <tr key={a.agente} className="border-b border-white/5">
-                    <td className="px-3 py-2 text-white/40">{i + 1}</td>
+                  <tr key={a.agente} className="border-b border-[#EFE9DC]">
+                    <td className="px-3 py-2 text-[#8A8477]">{i + 1}</td>
                     <td className="px-3 py-2">{a.agente}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{a.n}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{fmtMoney(a.monto)}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{fmtMoney(a.cobrado)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums" style={{ color: GOLD }}>{fmtMoney(a.comision)}</td>
+                    <td className="px-3 py-2 text-right tabular-nums" style={{ color: GOLD_TEXT }}>{fmtMoney(a.comision)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1297,13 +1318,13 @@ function Cartera({ items, clients, productos, mostrarAgente, onUpdate, onAdd }) 
       </div>
 
       <div className="flex justify-end mb-3">
-        <button onClick={onAdd} className="flex items-center gap-1 text-sm px-3 py-2 rounded" style={{ background: GOLD, color: "black" }}>
+        <button onClick={onAdd} className="flex items-center gap-1 text-sm px-3 py-2 rounded" style={{ background: GOLD, color: "#1C1B19" }}>
           <Plus size={15} /> Agregar a cartera
         </button>
       </div>
 
       {items.length === 0 ? (
-        <div className="text-white/40 text-sm py-10 text-center">
+        <div className="text-[#8A8477] text-sm py-10 text-center">
           No hay dinero comprometido todavía. Reporta una venta con abono o fecha de pago y aparecerá aquí.
         </div>
       ) : (
@@ -1318,59 +1339,59 @@ function Cartera({ items, clients, productos, mostrarAgente, onUpdate, onAdd }) 
                 key={v.id}
                 className="rounded border px-4 py-3"
                 style={{
-                  borderColor: vencido ? "rgba(239,68,68,0.45)" : hoy ? GOLD : "rgba(255,255,255,0.1)",
-                  background: vencido ? "rgba(239,68,68,0.06)" : "rgba(255,255,255,0.03)",
+                  borderColor: vencido ? ROJO_BORDE : hoy ? GOLD : LINEA,
+                  background: vencido ? ROJO_BG : "#FFFFFF",
                 }}
               >
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
                     <div className="text-sm font-medium">
                       {v.cliente || "Sin nombre"}
-                      {mostrarAgente && <span className="text-white/40 text-xs"> ({v.agente})</span>}
+                      {mostrarAgente && <span className="text-[#8A8477] text-xs"> ({v.agente})</span>}
                     </div>
-                    <div className="text-xs text-white/50 mt-0.5">
+                    <div className="text-xs text-[#6E685C] mt-0.5">
                       {nombreProducto(v, productos) || "Sin servicio"} · Total {fmtMoney(v.monto)} · Abonado {fmtMoney(v.abono)}
                     </div>
-                    {v.notas && <div className="text-[11px] text-white/35 mt-0.5">{v.notas}</div>}
+                    {v.notas && <div className="text-[11px] text-[#8A8477] mt-0.5">{v.notas}</div>}
                   </div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="text-right">
-                      <div className="text-[10px] uppercase tracking-wider text-white/40">Saldo</div>
-                      <div className="text-lg font-semibold tabular-nums" style={{ color: vencido ? "#f87171" : GOLD }}>
+                      <div className="text-[10px] uppercase tracking-wider text-[#8A8477]">Saldo</div>
+                      <div className="text-lg font-semibold tabular-nums" style={{ color: vencido ? ROJO : GOLD_TEXT }}>
                         {fmtMoney(v.saldo)}
                       </div>
                     </div>
                     <span
                       className="text-xs px-2 py-1 rounded whitespace-nowrap"
                       style={{
-                        background: vencido ? "rgba(239,68,68,0.18)" : hoy ? "rgba(201,162,39,0.2)" : "rgba(255,255,255,0.08)",
-                        color: vencido ? "#f87171" : hoy ? GOLD : "rgba(255,255,255,0.6)",
+                        background: vencido ? "#F7DAD6" : hoy ? "#F3E8C9" : "#F3EFE6",
+                        color: vencido ? ROJO : hoy ? GOLD_TEXT : "#5C574E",
                       }}
                     >
                       {fmtDias(v.dias)}
                     </span>
                     {link ? (
-                      <a href={link} target="_blank" rel="noreferrer" className="text-xs px-3 py-1.5 rounded" style={{ background: GOLD, color: "black" }}>
+                      <a href={link} target="_blank" rel="noreferrer" className="text-xs px-3 py-1.5 rounded" style={{ background: GOLD, color: "#1C1B19" }}>
                         WhatsApp
                       </a>
                     ) : (
-                      <span className="text-[11px] text-white/30">Sin teléfono</span>
+                      <span className="text-[11px] text-[#A9A296]">Sin teléfono</span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t border-white/5">
-                  <label className="text-[11px] text-white/40">
+                <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t border-[#EFE9DC]">
+                  <label className="text-[11px] text-[#8A8477]">
                     <div className="mb-1 uppercase tracking-wider">Abono recibido</div>
                     <input className="cellin w-32" type="number" defaultValue={v.abono ?? ""} placeholder="0"
                            onBlur={(e) => { if (e.target.value !== String(v.abono ?? "")) onUpdate(v.id, { abono: e.target.value }); }} />
                   </label>
-                  <label className="text-[11px] text-white/40">
+                  <label className="text-[11px] text-[#8A8477]">
                     <div className="mb-1 uppercase tracking-wider">Fecha de pago</div>
                     <input className="cellin w-40" type="date" value={v.fecha || ""}
                            onChange={(e) => onUpdate(v.id, { fecha: e.target.value })} />
                   </label>
-                  <label className="text-[11px] text-white/40 flex-1 min-w-[180px]">
+                  <label className="text-[11px] text-[#8A8477] flex-1 min-w-[180px]">
                     <div className="mb-1 uppercase tracking-wider">Observaciones</div>
                     <input className="cellin" defaultValue={v.notas || ""} placeholder="Ej: pide llamar en la tarde…"
                            onBlur={(e) => { if (e.target.value !== (v.notas || "")) onUpdate(v.id, { notas: e.target.value }); }} />
@@ -1379,7 +1400,7 @@ function Cartera({ items, clients, productos, mostrarAgente, onUpdate, onAdd }) 
                     <button
                       onClick={() => onUpdate(v.id, { estado: "pagado" })}
                       className="text-xs px-3 py-2 rounded border flex items-center gap-1.5"
-                      style={{ borderColor: "rgba(74,222,128,0.4)", color: "#4ade80" }}
+                      style={{ borderColor: "rgba(60,110,71,0.40)", color: VERDE }}
                     >
                       <Check size={13} /> Pago completo
                     </button>
@@ -1422,27 +1443,27 @@ function Config({ productos, onSave, onDelete }) {
 
   return (
     <div>
-      <div className="rounded border border-white/10 p-4 mb-4">
-        <div className="text-xs uppercase tracking-wider text-white/50 mb-3 flex items-center gap-2">
+      <div className="rounded border border-[#E9E2D0] p-4 mb-4">
+        <div className="text-xs uppercase tracking-wider text-[#6E685C] mb-3 flex items-center gap-2">
           <Settings size={14} /> Catálogo de servicios
         </div>
         <div className="flex flex-wrap gap-2 items-end">
-          <label className="text-[11px] text-white/40 flex-1 min-w-[160px]">
+          <label className="text-[11px] text-[#8A8477] flex-1 min-w-[160px]">
             <div className="mb-1 uppercase tracking-wider">Nombre</div>
             <input className="input" value={nuevo.nombre} placeholder="Ej: Diamante"
                    onChange={(e) => setNuevo({ ...nuevo, nombre: e.target.value })} />
           </label>
-          <label className="text-[11px] text-white/40">
+          <label className="text-[11px] text-[#8A8477]">
             <div className="mb-1 uppercase tracking-wider">Precio</div>
             <input className="input w-28" type="number" value={nuevo.precio}
                    onChange={(e) => setNuevo({ ...nuevo, precio: e.target.value })} />
           </label>
-          <label className="text-[11px] text-white/40">
+          <label className="text-[11px] text-[#8A8477]">
             <div className="mb-1 uppercase tracking-wider">Comisión fija</div>
             <input className="input w-28" type="number" value={nuevo.comision}
                    onChange={(e) => setNuevo({ ...nuevo, comision: e.target.value })} />
           </label>
-          <label className="text-[11px] text-white/40">
+          <label className="text-[11px] text-[#8A8477]">
             <div className="mb-1 uppercase tracking-wider">Tipo</div>
             <select className="input w-36" value={nuevo.tipo} onChange={(e) => setNuevo({ ...nuevo, tipo: e.target.value })}>
               <option value="membresia">Membresía</option>
@@ -1450,16 +1471,16 @@ function Config({ productos, onSave, onDelete }) {
               <option value="otro">Otro</option>
             </select>
           </label>
-          <button onClick={agregar} className="px-4 py-2 text-sm rounded font-medium" style={{ background: GOLD, color: "black" }}>
+          <button onClick={agregar} className="px-4 py-2 text-sm rounded font-medium" style={{ background: GOLD, color: "#1C1B19" }}>
             + Agregar
           </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded border border-white/10">
+      <div className="overflow-x-auto rounded border border-[#E9E2D0]">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-white/40 text-[10px] uppercase tracking-wider border-b border-white/10">
+            <tr className="text-[#8A8477] text-[10px] uppercase tracking-wider border-b border-[#E9E2D0]">
               <th className="text-left px-3 py-2">Servicio</th>
               <th className="text-right px-3 py-2">Precio</th>
               <th className="text-right px-3 py-2">Comisión fija</th>
@@ -1470,7 +1491,7 @@ function Config({ productos, onSave, onDelete }) {
           </thead>
           <tbody>
             {productos.map((p) => (
-              <tr key={p.id} className="border-b border-white/5" style={p.activo ? {} : { opacity: 0.45 }}>
+              <tr key={p.id} className="border-b border-[#EFE9DC]" style={p.activo ? {} : { opacity: 0.45 }}>
                 <td className="px-3 py-2">
                   <input className="cellin" defaultValue={p.nombre}
                          onBlur={(e) => { if (e.target.value !== p.nombre) patch(p.id, "nombre", e.target.value); }} />
@@ -1491,12 +1512,12 @@ function Config({ productos, onSave, onDelete }) {
                   </select>
                 </td>
                 <td className="px-3 py-2 text-center">
-                  <button onClick={() => patch(p.id, "activo", !p.activo)} className="text-white/50 hover:text-white">
+                  <button onClick={() => patch(p.id, "activo", !p.activo)} className="text-[#6E685C] hover:text-[#1C1B19]">
                     {p.activo ? "●" : "○"}
                   </button>
                 </td>
                 <td className="px-3 py-2 text-right">
-                  <button onClick={() => onDelete(p.id, p.nombre)} className="text-white/40 hover:text-red-400">
+                  <button onClick={() => onDelete(p.id, p.nombre)} className="text-[#8A8477] hover:text-red-400">
                     <Trash2 size={14} />
                   </button>
                 </td>
@@ -1505,7 +1526,7 @@ function Config({ productos, onSave, onDelete }) {
           </tbody>
         </table>
       </div>
-      <div className="text-[11px] text-white/35 mt-3 leading-relaxed">
+      <div className="text-[11px] text-[#8A8477] mt-3 leading-relaxed">
         <b>Comisión fija</b> = cuánto gana el agente por cada venta de ese servicio. Si la dejas en 0, se calcula
         automáticamente el <b>{Math.round(COMISION_PCT * 100)}%</b> del monto de la venta. Desactivar un servicio (○) lo
         saca del formulario de venta pero no toca el histórico.
@@ -1522,11 +1543,11 @@ function ClientModal({ client, agents, isDirector, onClose, onSave, onDelete }) 
   const isNew = !!client._nuevo;
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-20 px-4" onClick={onClose}>
-      <div className="bg-[#0d0d0d] border border-white/10 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <span className="font-semibold" style={{ color: GOLD }}>{isNew ? "Nuevo cliente" : "Editar cliente"}</span>
-          <button onClick={onClose}><X size={18} className="text-white/50" /></button>
+    <div className="fixed inset-0 bg-[#1C1B19]/40 flex items-center justify-center z-20 px-4" onClick={onClose}>
+      <div className="bg-white border border-[#E9E2D0] rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E9E2D0]">
+          <span className="font-semibold" style={{ color: GOLD_TEXT }}>{isNew ? "Nuevo cliente" : "Editar cliente"}</span>
+          <button onClick={onClose}><X size={18} className="text-[#6E685C]" /></button>
         </div>
         <div className="p-5 space-y-3">
           <Field label="Nombre"><input className="input" value={form.nombre} onChange={(e) => set("nombre", e.target.value)} /></Field>
@@ -1555,7 +1576,7 @@ function ClientModal({ client, agents, isDirector, onClose, onSave, onDelete }) 
                   <button key={n} type="button"
                     onClick={() => set("clases", on ? form.clases.filter((x) => x !== n) : [...(form.clases || []), n])}
                     className="w-9 h-9 rounded-full text-xs font-semibold border"
-                    style={on ? { background: GOLD, borderColor: GOLD, color: "black" } : { borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.45)" }}>
+                    style={on ? { background: GOLD, borderColor: GOLD, color: "#1C1B19" } : { borderColor: LINEA, color: APAGADO }}>
                     {n}
                   </button>
                 );
@@ -1571,7 +1592,7 @@ function ClientModal({ client, agents, isDirector, onClose, onSave, onDelete }) 
                   <button key={z.key} type="button"
                     onClick={() => set("zooms", on ? form.zooms.filter((x) => x !== z.key) : [...(form.zooms || []), z.key])}
                     className="px-3 h-9 rounded-full text-xs font-semibold border"
-                    style={on ? { background: "rgba(201,162,39,0.18)", borderColor: GOLD, color: GOLD } : { borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.45)" }}>
+                    style={on ? { background: "#F3E8C9", borderColor: GOLD, color: GOLD_TEXT } : { borderColor: LINEA, color: APAGADO }}>
                     {z.label}
                   </button>
                 );
@@ -1581,17 +1602,17 @@ function ClientModal({ client, agents, isDirector, onClose, onSave, onDelete }) 
 
           <Field label="Notas"><input className="input" value={form.notas || ""} onChange={(e) => set("notas", e.target.value)} /></Field>
 
-          <div className="text-[11px] text-white/35 border-t border-white/10 pt-3 leading-relaxed">
+          <div className="text-[11px] text-[#8A8477] border-t border-[#E9E2D0] pt-3 leading-relaxed">
             Los montos, abonos y fechas de pago ahora se registran en la pestaña <b>Ventas</b>, una línea por servicio vendido.
           </div>
         </div>
-        <div className="flex items-center justify-between px-5 py-4 border-t border-white/10">
+        <div className="flex items-center justify-between px-5 py-4 border-t border-[#E9E2D0]">
           {!isNew
             ? <button onClick={() => onDelete(form.id, form.nombre)} className="text-red-400 text-sm">Eliminar</button>
             : <span />}
           <div className="flex gap-2">
-            <button onClick={onClose} className="px-4 py-2 text-sm text-white/60">Cancelar</button>
-            <button onClick={() => onSave(form)} className="px-4 py-2 text-sm rounded font-medium" style={{ background: GOLD, color: "black" }}>Guardar</button>
+            <button onClick={onClose} className="px-4 py-2 text-sm text-[#5C574E]">Cancelar</button>
+            <button onClick={() => onSave(form)} className="px-4 py-2 text-sm rounded font-medium" style={{ background: GOLD, color: "#1C1B19" }}>Guardar</button>
           </div>
         </div>
       </div>
@@ -1639,11 +1660,11 @@ function VentaModal({ venta, productos, clientes, agents, isDirector, onClose, o
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-20 px-4" onClick={onClose}>
-      <div className="bg-[#0d0d0d] border border-white/10 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <span className="font-semibold" style={{ color: GOLD }}>Reporte de venta</span>
-          <button onClick={onClose}><X size={18} className="text-white/50" /></button>
+    <div className="fixed inset-0 bg-[#1C1B19]/40 flex items-center justify-center z-20 px-4" onClick={onClose}>
+      <div className="bg-white border border-[#E9E2D0] rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E9E2D0]">
+          <span className="font-semibold" style={{ color: GOLD_TEXT }}>Reporte de venta</span>
+          <button onClick={onClose}><X size={18} className="text-[#6E685C]" /></button>
         </div>
         <div className="p-5 space-y-3">
           {isDirector && (
@@ -1698,9 +1719,9 @@ function VentaModal({ venta, productos, clientes, agents, isDirector, onClose, o
             </Field>
           </div>
 
-          <div className="rounded border border-white/10 px-3 py-2 text-xs text-white/50 flex justify-between">
+          <div className="rounded border border-[#E9E2D0] px-3 py-2 text-xs text-[#6E685C] flex justify-between">
             <span>Saldo pendiente</span>
-            <span style={{ color: GOLD }} className="font-semibold">
+            <span style={{ color: GOLD_TEXT }} className="font-semibold">
               {fmtMoney(Math.max(0, num(form.monto) - num(form.abono)))}
             </span>
           </div>
@@ -1723,9 +1744,9 @@ function VentaModal({ venta, productos, clientes, agents, isDirector, onClose, o
 
           {error && <div className="text-red-400 text-xs">{error}</div>}
         </div>
-        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-white/10">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-white/60">Cancelar</button>
-          <button onClick={guardar} className="px-4 py-2 text-sm rounded font-medium" style={{ background: GOLD, color: "black" }}>Guardar venta</button>
+        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-[#E9E2D0]">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-[#5C574E]">Cancelar</button>
+          <button onClick={guardar} className="px-4 py-2 text-sm rounded font-medium" style={{ background: GOLD, color: "#1C1B19" }}>Guardar venta</button>
         </div>
       </div>
     </div>
@@ -1735,7 +1756,7 @@ function VentaModal({ venta, productos, clientes, agents, isDirector, onClose, o
 function Field({ label, children }) {
   return (
     <div>
-      <div className="text-xs text-white/40 mb-1">{label}</div>
+      <div className="text-xs text-[#8A8477] mb-1">{label}</div>
       {children}
     </div>
   );
@@ -1743,12 +1764,12 @@ function Field({ label, children }) {
 
 function ConfirmModal({ texto, onCancel, onConfirm }) {
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-30 px-4" onClick={onCancel}>
-      <div className="bg-[#0d0d0d] border border-white/10 rounded-lg p-5 max-w-sm" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-[#1C1B19]/40 flex items-center justify-center z-30 px-4" onClick={onCancel}>
+      <div className="bg-white border border-[#E9E2D0] rounded-lg p-5 max-w-sm" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 text-sm">{texto || "¿Confirmas esta acción? No se puede deshacer."}</div>
         <div className="flex justify-end gap-2">
-          <button onClick={onCancel} className="px-4 py-2 text-sm text-white/60">Cancelar</button>
-          <button onClick={onConfirm} className="px-4 py-2 text-sm rounded bg-red-500/80 text-white">Eliminar</button>
+          <button onClick={onCancel} className="px-4 py-2 text-sm text-[#5C574E]">Cancelar</button>
+          <button onClick={onConfirm} className="px-4 py-2 text-sm rounded bg-red-500/80 text-[#1C1B19]">Eliminar</button>
         </div>
       </div>
     </div>
