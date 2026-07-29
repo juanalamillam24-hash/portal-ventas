@@ -169,21 +169,26 @@ Botón *Reportar venta*. Los campos:
 | **Cliente del embudo** | Si eliges uno de la lista, la venta queda enlazada a su ficha y hereda su teléfono. Opcional. |
 | **Nombre del cliente** | Obligatorio. Se rellena solo si elegiste uno de la lista. |
 | **Servicio vendido** | Obligatorio. Al elegirlo se precarga el precio del catálogo, que puedes cambiar. |
+| **Situación** | La pregunta clave. Tres opciones: *Ya pagó completo*, *Pago agendado* (confirmado pero pendiente) o *Posible* (aún sin confirmar). |
 | **Monto total** | Obligatorio, mayor que cero. |
-| **Abono recibido** | Lo que ya pagó. No puede ser mayor que el monto. |
-| **Tipo** | *Agendado* (confirmado) o *Posible*. |
-| **Fecha de pago** | Cuándo se comprometió a pagar. De aquí salen las alertas. |
+| **Abono recibido** | Lo que ya pagó a cuenta. Solo aparece si la venta no está pagada del todo. |
+| **Fecha de pago** | Cuándo se comprometió a pagar. De aquí salen las alertas. Si elegiste *Ya pagó completo*, este campo se convierte en *Fecha en que pagó*. |
 | **Observaciones** | Notas libres. |
 
-Mientras escribes, el sistema te muestra el **saldo pendiente** calculado.
+Si eliges **Ya pagó completo**, el formulario esconde el abono y te confirma en
+verde el monto cobrado. Es el caso de la venta que se cierra y se paga en el
+momento: se registra de una vez, sin tener que ir después a Cartera a marcarla.
+
+Si no, el sistema te muestra el **saldo pendiente** calculado mientras escribes.
 
 ### La tabla
 
-Cada venta con su cliente, servicio, monto, abono, saldo, fecha y estado.
-Directamente en la tabla puedes editar el **abono** y la **fecha de pago** sin
-abrir nada. Los tres botones al final de cada fila:
+Es un **informe de solo lectura**: cada venta con su cliente, servicio, monto,
+abono, saldo, fecha y estado. Para cambiar cifras se usa Cartera (el día a día
+del cobro) o el botón de editar. Los tres botones al final de cada fila:
 
-- **✓** — marca como pagada, o la devuelve a pendiente.
+- **✓** — marca como pagada, o la devuelve a pendiente. Esto último solo se
+  puede hacer aquí: las ventas pagadas desaparecen de Cartera.
 - **✎** — abre la venta completa para editarla.
 - **🗑** — la elimina, con confirmación.
 
@@ -251,11 +256,10 @@ consolidado del equipo, con teléfonos de clientes, montos y comisiones. Además
 la base de datos permite lectura y escritura a cualquier visitante. Es el punto
 pendiente más serio.
 
-**El abono se puede pasar del monto.** El formulario de venta lo impide, pero
-si editas el abono directamente en la tabla de Ventas o en Cartera, no hay
-validación. Si escribes 900 en una venta de 789, el saldo se muestra en cero
-(bien) pero el número de **Cobrado** sube a 900 (mal). Corrígelo desde el
-formulario si pasa.
+**El abono se puede pasar del monto, pero solo desde Cartera.** El formulario
+lo impide y la tabla de Ventas ya no deja editar. Si en Cartera escribes 900 en
+una venta de 789, el saldo se muestra en cero (bien) pero el **Facturado** sube
+a 900 (mal). Corrígelo desde el botón de editar si pasa.
 
 **Al borrar un cliente, sus ventas se quedan.** Siguen contando en Finanzas
 pero ya no tienen ficha detrás. El sistema te avisa antes de borrar.

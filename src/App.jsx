@@ -1187,25 +1187,12 @@ function Ventas({ ventas, productos, mostrarAgente, onAdd, onEdit, onUpdate, onD
                     {mostrarAgente && <td className="px-3 py-2 text-[#6E685C] text-xs">{v.agente}</td>}
                     <td className="px-3 py-2 text-[#3D3931]">{nombreProducto(v, productos) || "—"}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{fmtMoney(v.monto)}</td>
-                    <td className="px-3 py-2 text-right w-28">
-                      <input
-                        className="cellin text-right"
-                        type="number"
-                        defaultValue={v.abono ?? ""}
-                        placeholder="0"
-                        onBlur={(e) => { if (e.target.value !== String(v.abono ?? "")) onUpdate(v.id, { abono: e.target.value }); }}
-                      />
-                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums">{fmtMoney(v.abono)}</td>
                     <td className="px-3 py-2 text-right tabular-nums" style={{ color: saldo > 0 ? GOLD_TEXT : VERDE }}>
                       {fmtMoney(saldo)}
                     </td>
-                    <td className="px-3 py-2 w-36">
-                      <input
-                        className="cellin"
-                        type="date"
-                        value={v.fecha || ""}
-                        onChange={(e) => onUpdate(v.id, { fecha: e.target.value })}
-                      />
+                    <td className="px-3 py-2 whitespace-nowrap text-[#3D3931]">
+                      {v.fecha || <span className="text-[#A9A296]">sin fecha</span>}
                     </td>
                     <td className="px-3 py-2">
                       <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded"
@@ -1652,12 +1639,28 @@ function VentaModal({ venta, productos, clientes, agents, isDirector, onClose, o
     setForm((f) => ({ ...f, clienteId: id, cliente: c ? c.nombre : f.cliente }));
   }
 
+  // Por dentro el sistema guarda dos campos, "tipo" y "estado", pero solo tres
+  // de sus combinaciones tienen sentido (una venta posible no puede estar
+  // pagada). Aquí se presentan como una sola pregunta.
+  const situacion = form.estado === "pagado" ? "pagado" : form.tipo;
+  const yaPago = situacion === "pagado";
+
+  function elegirSituacion(valor) {
+    if (valor === "pagado") setForm((f) => ({ ...f, estado: "pagado", tipo: "agendado" }));
+    else setForm((f) => ({ ...f, estado: "pendiente", tipo: valor }));
+  }
+
   function guardar() {
     if (!(form.cliente || "").trim()) { setError("Escribe o elige el cliente."); return; }
     if (!form.producto) { setError("Elige el servicio vendido."); return; }
     if (num(form.monto) <= 0) { setError("El monto de la venta debe ser mayor a 0."); return; }
-    if (num(form.abono) > num(form.monto)) { setError("El abono no puede ser mayor que el monto total."); return; }
-    onSave({ ...form, cliente: form.cliente.trim() });
+    if (!yaPago && num(form.abono) > num(form.monto)) {
+      setError("El abono no puede ser mayor que el monto total.");
+      return;
+    }
+    // Si ya pagó, el abono deja de tener sentido: el cobrado es el monto entero.
+    const limpio = yaPago ? { ...form, abono: form.monto } : form;
+    onSave({ ...limpio, cliente: limpio.cliente.trim() });
   }
 
   return (
@@ -1711,33 +1714,48 @@ function VentaModal({ venta, productos, clientes, agents, isDirector, onClose, o
             </select>
           </Field>
 
+          <Field label="Situación">
+            <select className="input" value={situacion} onChange={(e) => elegirSituacion(e.target.value)}>
+              <option value="pagado">Ya pagó completo</option>
+              <option value="agendado">Pago agendado (confirmado)</option>
+              <option value="posible">Posible</option>
+            </select>
+          </Field>
+
           <div className="grid grid-cols-2 gap-3">
             <Field label="Monto total">
               <input className="input" type="number" value={form.monto} onChange={(e) => set("monto", e.target.value)} />
             </Field>
-            <Field label="Abono recibido">
-              <input className="input" type="number" value={form.abono} onChange={(e) => set("abono", e.target.value)} />
-            </Field>
+            {yaPago ? (
+              <Field label="Fecha en que pagó">
+                <input className="input" type="date" value={form.fecha} onChange={(e) => set("fecha", e.target.value)} />
+              </Field>
+            ) : (
+              <Field label="Abono recibido">
+                <input className="input" type="number" value={form.abono} onChange={(e) => set("abono", e.target.value)} />
+              </Field>
+            )}
           </div>
 
-          <div className="rounded border border-[#E9E2D0] px-3 py-2 text-xs text-[#6E685C] flex justify-between">
-            <span>Saldo pendiente</span>
-            <span style={{ color: GOLD_TEXT }} className="font-semibold">
-              {fmtMoney(Math.max(0, num(form.monto) - num(form.abono)))}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Tipo">
-              <select className="input" value={form.tipo} onChange={(e) => set("tipo", e.target.value)}>
-                <option value="agendado">Agendado (confirmado)</option>
-                <option value="posible">Posible</option>
-              </select>
-            </Field>
-            <Field label="Fecha de pago">
-              <input className="input" type="date" value={form.fecha} onChange={(e) => set("fecha", e.target.value)} />
-            </Field>
-          </div>
+          {yaPago ? (
+            <div className="rounded border px-3 py-2 text-xs flex justify-between"
+                 style={{ borderColor: "rgba(60,110,71,0.40)", background: VERDE_BG, color: VERDE }}>
+              <span>Cobrado completo</span>
+              <span className="font-semibold">{fmtMoney(form.monto)}</span>
+            </div>
+          ) : (
+            <>
+              <div className="rounded border border-[#E9E2D0] px-3 py-2 text-xs text-[#6E685C] flex justify-between">
+                <span>Saldo pendiente</span>
+                <span style={{ color: GOLD_TEXT }} className="font-semibold">
+                  {fmtMoney(Math.max(0, num(form.monto) - num(form.abono)))}
+                </span>
+              </div>
+              <Field label="Fecha de pago">
+                <input className="input" type="date" value={form.fecha} onChange={(e) => set("fecha", e.target.value)} />
+              </Field>
+            </>
+          )}
 
           <Field label="Observaciones">
             <input className="input" value={form.notas} onChange={(e) => set("notas", e.target.value)} placeholder="Ej: pide llamar en la tarde…" />
